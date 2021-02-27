@@ -80,8 +80,15 @@ class Application(Frame):
         self.varCategory.set('')
         self.varCompany.set('')
         self.selCompany.set('')
-        self.categoryList = self.config.getCategories()
-        self.companyList = self.config.getCompanies()
+
+        if self.config.getLocation():
+            self.categoryList = self.config.getCategories()
+            #self.companyList = self.config.getCompanies()
+        else:
+            self.categoryList = ['No Selection']
+
+        self.companyList = ['No Selection']
+
 
         # Create widgets for the main screen
         self.mainLabel = Label(self.main_container, text="RESUME ORGANIZER", style="M.TLabel" )
@@ -106,14 +113,14 @@ class Application(Frame):
         # frame for folder and resume creation
         self.createResume = LabelFrame(self.workTab, text=' Resume ', style="O.TLabelframe")
         self.catLabel = Label(self.createResume, text="Category", style="L.TLabel" )
-        self.catList = OptionMenu(self.createResume, self.varCategory, *self.categoryList)
+        self.catList = OptionMenu(self.createResume, self.varCategory, *self.categoryList, command=self.getCompanyList)
         self.catList.config(width=32)
         self.catList["menu"].config(bg="white")
         self.compLabel = Label(self.createResume, text="Company", style="L.TLabel" )
         self.compList = OptionMenu(self.createResume, self.varCompany, *self.companyList)
         self.compList.config(width=32)
-        self.category = Button(self.createResume, text="Edit List", style="B.TButton", command=self.showCategory)
-        self.company = Button(self.createResume, text="Edit List", style="B.TButton", command=self.showCompany)
+        self.category = Button(self.createResume, text="Update List", style="B.TButton", command=self.showCategory)
+        self.company = Button(self.createResume, text="Update List", style="B.TButton", command=self.showCompany)
         self.createNew = Button(self.createResume, text="Create Resume", style="B.TButton", command=self.showResumeCreate)
         self.createSubmission = Button(self.createResume, text="Create Submission", style="B.TButton", command=self.showSubmission)
 
@@ -141,8 +148,8 @@ class Application(Frame):
 
         self.work_a.grid(row=1, column=0, columnspan=4, padx=4, pady=5, sticky='NSEW')
 
-        self.directoryLabel.grid(row=0, column=0, columnspan=1, padx=5, pady=5, sticky='NSEW')
-        self.directory.grid(row=0, column=1, columnspan=3, padx=5, pady=5, sticky='NSEW')
+        # self.directoryLabel.grid(row=0, column=0, columnspan=1, padx=5, pady=5, sticky='NSEW')
+        # self.directory.grid(row=0, column=1, columnspan=3, padx=5, pady=5, sticky='NSEW')
         self.locationLabel.grid(row=1, column=0, columnspan=1, padx=5, pady=5, sticky='NSEW')
         self.location.grid(row=1, column=1, columnspan=3, padx=5, pady=5, sticky='NSEW')
         self.nameLabel.grid(row=2, column=0, columnspan=1, padx=5, pady=5, sticky='NSEW')
@@ -205,6 +212,17 @@ class Application(Frame):
         data = self.config.getSettings()
 
         return data['Location'] and data['Name']
+
+    def getCompanyList(self, category):
+
+        self.companyList = self.config.getCompanies(category)
+
+        menu = self.compList['menu']
+        menu.delete(0, 'end')
+
+        for comp in self.companyList:
+            menu.add_command(label=comp, command=lambda value=comp: self.varCompany.set(value))
+
 
     def showCategory(self):
         ''' This function will show the configuration settings screen
@@ -270,7 +288,7 @@ class Application(Frame):
                 menu = self.catList['menu']
                 menu.delete(0, 'end')
 
-                for cat in self.categoryList[1:]:
+                for cat in self.categoryList:
                     menu.add_command(label=cat, command=lambda value=cat: self.varCategory.set(value))
 
                 self.popCategory.destroy()
@@ -297,7 +315,7 @@ class Application(Frame):
                 menu = self.catList['menu']
                 menu.delete(0, 'end')
 
-                for cat in self.categoryList[1:]:
+                for cat in self.categoryList:
                     menu.add_command(label=cat, command=lambda value=cat: self.varCategory.set(value))
 
                 # add code here to check for folders, check for files and then delete IF empty
@@ -372,7 +390,7 @@ class Application(Frame):
                 menu = self.compList['menu']
                 menu.delete(0, 'end')
 
-                for comp in self.companyList[1:]:
+                for comp in self.companyList:
                     menu.add_command(label=comp, command=lambda value=comp: self.varCompany.set(value))
 
                 self.popCompany.destroy()
@@ -398,7 +416,7 @@ class Application(Frame):
                 menu = self.compList['menu']
                 menu.delete(0, 'end')
 
-                for comp in self.companyList[1:]:
+                for comp in self.companyList:
                     menu.add_command(label=comp, command=lambda value=comp: self.varCompany.set(value))
 
                 # add code here to search for the folders under each category, check for files and then delete IF empty
@@ -706,7 +724,7 @@ class Application(Frame):
         # self.setLabelA = Label(self.popConfig, text="Directory", style="L.TLabel" )
         # self.setDirectory = Label(self.popConfig, text="", style="P.TLabel" )
         # self.setWorkingDirectory = Button(self.popConfig, text="Set Work Dir", style="B.TButton", command=self.setworkDirectory)
-
+        #
         self.setLabelB = Label(self.popConfig, text="Location", style="L.TLabel" )
         self.setLocation = Label(self.popConfig, text="", style="P.TLabel" )
         self.setSelectLocation = Button(self.popConfig, text="Select Location", style="B.TButton", command=self.setResumeLocation)
@@ -857,7 +875,7 @@ root.title("RESUME ORGANIZER")
 
 # Set size
 
-wh = 410
+wh = 400
 ww = 440
 
 #root.resizable(height=False, width=False)

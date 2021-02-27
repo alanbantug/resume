@@ -16,7 +16,7 @@ class config(object):
 
     def initConfigFile(self):
 
-        data = {"Directory": "", "Location": "", "Name": "", "Categories": ["No Selection"], 'Last Resume': ''}
+        data = {"Location": "", "Name": "", 'Last Resume': ''}
 
         # this code will create the data subdirectory the first time the program runs
         try:
@@ -69,23 +69,65 @@ class config(object):
 
         return data['Name']
 
-    def getCompanies(self):
+    def getCompanies(self, category):
+
+        print(category)
 
         data = self.getSettings()
 
-        data_sort = sorted(data['Companies'][1:])
-        data_sort.insert(0, data['Companies'][0])
+        com_list = []
 
-        return data_sort
+        if data['Location']:
+            pass
+        else:
+            return com_list
+
+        work_dir = os.getcwd()
+
+        for dirs, subs, files in os.walk(data['Location']):
+
+            for sub in subs:
+                temp = os.path.join(dirs, sub)
+                print(temp)
+
+                try:
+                    if temp.index(category):
+                        item = temp.split("\\")[2]
+                        if item in com_list:
+                            pass
+                        else:
+                            com_list.append(sub)
+                except:
+                    pass
+
+        return com_list
 
     def getCategories(self):
 
         data = self.getSettings()
 
-        data_sort = sorted(data['Categories'][1:])
-        data_sort.insert(0, data['Categories'][0])
+        cat_list = []
 
-        return data_sort
+        if data['Location']:
+            pass
+        else:
+            return cat_list
+
+        work_dir = os.getcwd()
+
+        for dirs, subs, files in os.walk(data['Location']):
+
+            for sub in subs:
+                temp = os.path.join(dirs, sub)
+                item = temp.split("\\")[1]
+                if item in cat_list:
+                    pass
+                else:
+                    cat_list.append(sub)
+
+        cat_list.insert(0, "No Selection")
+        return cat_list
+
 
     def getLastResume(self):
 
@@ -93,11 +135,10 @@ class config(object):
 
         return data['Last Resume']
 
-    def updateSettings(self, directory, location, name):
+    def updateSettings(self, location, name):
 
         data = self.readConfigFile()
 
-        data['Directory'] = directory
         data['Location'] = location
         data['Name'] = name
 
@@ -115,16 +156,6 @@ class config(object):
 
         return True
 
-    # def updateName(self, name):
-    #
-    #     data = self.readConfigFile()
-    #
-    #     data['Name'] = name
-    #
-    #     self.writeConfigFile(data)
-    #
-    #     return True
-    #
     def updateLastResume(self, name):
 
         data = self.readConfigFile()
@@ -163,9 +194,12 @@ class config(object):
 
         data = self.readConfigFile()
 
-        data['Categories'].append(category)
+        work_dir = os.getcwd()
 
-        self.writeConfigFile(data)
+        os.chdir(data['Location'])
+        os.makedirs(category)
+
+        os.chdir(work_dir)
 
         return True
 
@@ -173,12 +207,11 @@ class config(object):
 
         data = self.readConfigFile()
 
-        # get the index
-        idx = data['Categories'].index(category)
+        work_dir = os.getcwd()
 
-        # pop the index out
-        data['Categories'].pop(idx)
+        os.chdir(data['Location'])
+        os.rmdir(category)
 
-        self.writeConfigFile(data)
+        os.chdir(work_dir)
 
         return True
